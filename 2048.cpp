@@ -10,6 +10,9 @@
 
 using namespace std;
 
+// For debugging purposes you can set one of the initial tiles to a specific number
+int debug = 2;
+
 int board[SIZE][SIZE];
 
 int getch() {
@@ -47,10 +50,10 @@ void initializeGame() {
             board[i][j] = 0;
         }
     }
-    // Add a 1024 tile at a random position on the board for debugging
+    // Add a tile at a random position on the board for debugging
     int randIndexI = rand() % SIZE;
     int randIndexJ = rand() % SIZE;
-    board[randIndexI][randIndexJ] = 2048;
+    board[randIndexI][randIndexJ] = debug;
 }
 
 void drawBoard() {
@@ -82,7 +85,8 @@ void drawBoard() {
                 int num = board[i][j];
                 int numLength = to_string(num).length();
                 int padding = (4 - numLength) / 2;
-                if (num > 1024) {
+                // If the number is greater than 1000 adjusts padding
+                if (num > 1000) {
                     cout << colorCode << setw(padding + numLength) << right << num << "\033[0m|";
                 } else {
                     cout << colorCode << setw(padding + numLength) << right << num << setw(4 - padding - numLength) << left << " " << "\033[0m|";
@@ -191,6 +195,12 @@ int main() {
         drawBoard();
         if(canDoMove() == false) {
             cout << "\nGAME OVER\n";
+            cout << "Do you want to play again? (y/n)\n";
+            char playAgain;
+            cin >> playAgain;
+            if(playAgain == 'y') {
+                main();
+            }
             break;
         }
         char command = getch();
@@ -201,13 +211,6 @@ int main() {
         int currentDirection = commandToChar[command];
         applyMove(currentDirection);
         addNewNumber();
-    }
-
-    cout << "Do you want to play again? (y/n)\n";
-    char playAgain;
-    cin >> playAgain;
-    if(playAgain == 'y') {
-        main();
     }
     return 0;
 }
