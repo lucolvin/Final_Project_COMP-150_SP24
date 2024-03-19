@@ -205,8 +205,14 @@ int main() {
         }
         char command = getch();
         if(command == 'q') {
-            cout << "QUIT!\n";
-            break;
+            cout << "Are you sure you want to quit? y/n ";
+            char quit;
+            cin >> quit;
+            if(quit == 'y') {
+                break;
+            } else {
+                continue;
+            }
         }
         int currentDirection = commandToChar[command];
         applyMove(currentDirection);
