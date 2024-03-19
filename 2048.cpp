@@ -205,7 +205,7 @@ int main() {
         }
         char command = getch();
         if(command == 'q') {
-            cout << "Are you sure you want to quit? y/n ";
+            cout << "\e[0;31mAre you sure you want to quit? y/n ";
             char quit;
             cin >> quit;
             if(quit == 'y') {
