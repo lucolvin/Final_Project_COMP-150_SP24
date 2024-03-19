@@ -202,5 +202,12 @@ int main() {
         applyMove(currentDirection);
         addNewNumber();
     }
+
+    cout << "Do you want to play again? (y/n)\n";
+    char playAgain;
+    cin >> playAgain;
+    if(playAgain == 'y') {
+        main();
+    }
     return 0;
 }
