@@ -20,6 +20,23 @@ int getch() {
     newt.c_lflag &= ~( ICANON | ECHO );
     tcsetattr( STDIN_FILENO, TCSANOW, &newt );
     ch = getchar();
+    if(ch == 27) { // if the first value is esc
+        getchar(); // skip the [
+        switch(getchar()) { // the real value
+            case 'A':
+                ch = 'w';
+                break;
+            case 'B':
+                ch = 's';
+                break;
+            case 'C':
+                ch = 'd';
+                break;
+            case 'D':
+                ch = 'a';
+                break;
+        }
+    }
     tcsetattr( STDIN_FILENO, TCSANOW, &oldt );
     return ch;
 }
@@ -30,6 +47,10 @@ void initializeGame() {
             board[i][j] = 0;
         }
     }
+    // Add a 1024 tile at a random position on the board for debugging
+    int randIndexI = rand() % SIZE;
+    int randIndexJ = rand() % SIZE;
+    board[randIndexI][randIndexJ] = 2048;
 }
 
 void drawBoard() {
@@ -61,7 +82,11 @@ void drawBoard() {
                 int num = board[i][j];
                 int numLength = to_string(num).length();
                 int padding = (4 - numLength) / 2;
-                cout << colorCode << setw(padding + numLength) << right << num << setw(4 - padding - numLength) << left << " " << "\033[0m|";
+                if (num > 1024) {
+                    cout << colorCode << setw(padding + numLength) << right << num << "\033[0m|";
+                } else {
+                    cout << colorCode << setw(padding + numLength) << right << num << setw(4 - padding - numLength) << left << " " << "\033[0m|";
+                }
             }
         }
         cout << "\n";
