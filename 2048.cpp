@@ -57,9 +57,9 @@ void initializeGame() {
 }
 
 void drawBoard() {
-    cout << "2048 GAME GO BRRRRR!!!!\n";
-    cout << "Try to get to the 2048 tile!\n";
-    cout << "W: UP, S: DOWN, A: LEFT, D: RIGHT, Q: QUIT\n";
+    cout << "\e[0;31m2048 GAME GO BRRRRR!!!!\n";
+    cout << "\e[0;32mTry to get to the 2048 tile!\n";
+    cout << "\e[0;34mW: UP, S: DOWN, A: LEFT, D: RIGHT, Q: QUIT\n\033[0m";
     for(int i=0; i<SIZE; i++) {
         cout << "+----+----+----+----+\n|";
         for(int j=0; j<SIZE; j++) {
@@ -194,8 +194,8 @@ int main() {
         system("clear");
         drawBoard();
         if(canDoMove() == false) {
-            cout << "\nGAME OVER\n";
-            cout << "Do you want to play again? (y/n)\n";
+            cout << "\n\e[1;37mGAME OVER\n\033[0m";
+            cout << "\e[0;36mDo you want to play again? \e[0;33m(y/n) \033[0m";
             char playAgain;
             cin >> playAgain;
             if(playAgain == 'y') {
@@ -205,7 +205,7 @@ int main() {
         }
         char command = getch();
         if(command == 'q') {
-            cout << "\e[0;31mAre you sure you want to quit? y/n ";
+            cout << "\e[0;31mAre you sure you want to quit? \e[0;33m(y/n) \033[0m";
             char quit;
             cin >> quit;
             if(quit == 'y') {
