@@ -1,3 +1,5 @@
+// TODO - Add cross-platform support for getch() function
+
 #include <iostream>
 #include <iomanip>
 #include <ctime>
@@ -59,7 +61,7 @@ void initializeGame() {
 void drawBoard() {
     cout << "\e[0;31m2048 GAME GO BRRRRR!!!!\n";
     cout << "\e[0;32mTry to get to the 2048 tile!\n";
-    cout << "\e[0;34mW: UP, S: DOWN, A: LEFT, D: RIGHT, Q: QUIT\n\033[0m";
+    cout << "\e[0;34mW: UP, S: DOWN, A: LEFT, D: RIGHT, R: RESTART, Q: QUIT\n\033[0m";
     for(int i=0; i<SIZE; i++) {
         cout << "+----+----+----+----+\n|";
         for(int j=0; j<SIZE; j++) {
@@ -96,6 +98,24 @@ void drawBoard() {
         cout << "\n";
     }
     cout << "+----+----+----+----+\n";
+}
+
+void commands(char command) {
+    if(command =='q') {
+        cout << "\e[0;31mAre you sure you want to quit? \e[0;33m(y/n) \033[0m";
+        char quit;
+        cin >> quit;
+        if(quit == 'y') {
+            exit(0);
+        }
+    } else if (command == 'r') {
+        cout << "\e[0;31mAre you sure you want to restart? \e[0;33m(y/n) \033[0m";
+        char restart;
+        cin >> restart;
+        if(restart == 'y') {
+            throw runtime_error("restart");
+        }
+    }
 }
 
 void addNewNumber() {
@@ -187,36 +207,45 @@ int main() {
     commandToChar['s'] = 2; // down
     commandToChar['a'] = 3; // left
     
-    srand(time(0));
-    initializeGame();
-    addNewNumber();
     while(true) {
-        system("clear");
-        drawBoard();
-        if(canDoMove() == false) {
-            cout << "\n\e[1;37mGAME OVER\n\033[0m";
-            cout << "\e[0;36mDo you want to play again? \e[0;33m(y/n) \033[0m";
-            char playAgain;
-            cin >> playAgain;
-            if(playAgain == 'y') {
-                main();
-            }
-            break;
-        }
-        char command = getch();
-        if(command == 'q') {
-            cout << "\e[0;31mAre you sure you want to quit? \e[0;33m(y/n) \033[0m";
-            char quit;
-            cin >> quit;
-            if(quit == 'y') {
-                break;
-            } else {
-                continue;
-            }
-        }
-        int currentDirection = commandToChar[command];
-        applyMove(currentDirection);
+        srand(time(0));
+        initializeGame();
         addNewNumber();
+        while(true) {
+            system("clear");
+            drawBoard();
+            if(canDoMove() == false) {
+                cout << "\n\e[1;37mGAME OVER\n\033[0m";
+                cout << "\e[0;36mDo you want to play again? \e[0;33m(y/n) \033[0m";
+                char playAgain;
+                cin >> playAgain;
+                while (playAgain != 'y' && playAgain != 'n')
+                {
+                    cout << "\e[0;31mInvalid input. Please enter \e[0;33m(y \033[0mor\e[0;33m n).\033[0m\n\n";
+                    cin >> playAgain;
+                }
+                if(playAgain == 'y') {
+                    break;
+                } else if (playAgain == 'n') {
+                    return 0;
+                } else {
+                    // Fallback. Used to be the invalid input message
+                    cout << "\e[0;31mHuh?.\033[0m";
+                    continue;
+                }
+            }
+            try {
+                char command = getch();
+                commands(command);
+                int currentDirection = commandToChar[command];
+                applyMove(currentDirection);
+                addNewNumber();
+            } catch (runtime_error& e) {
+                if (string(e.what()) == "restart") {
+                    break;
+                }
+            }
+        }
     }
     return 0;
 }
