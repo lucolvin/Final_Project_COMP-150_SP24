@@ -1,3 +1,5 @@
+// Github: https://github.com/lucolvin/Final_Project_COMP-150_SP24
+
 // TODO - Add cross-platform support for getch() function
 
 #include <iostream>
@@ -7,6 +9,9 @@
 #include <termios.h>
 #include <unistd.h>
 #include <cstdlib>
+#include <fstream>
+#include <vector>
+#include <algorithm>
 
 #define SIZE 4
 
@@ -14,8 +19,13 @@ using namespace std;
 
 // For debugging purposes you can set one of the initial tiles to a specific number
 int debug = 2;
+// score
+int score = 0;
 
 int board[SIZE][SIZE];
+
+// Function prototype for printHighScore
+void printHighScore();
 
 int getch() {
     struct termios oldt, newt;
@@ -52,6 +62,9 @@ void initializeGame() {
             board[i][j] = 0;
         }
     }
+    // reset the score
+    score = 0;
+
     // Add a tile at a random position on the board for debugging
     int randIndexI = rand() % SIZE;
     int randIndexJ = rand() % SIZE;
@@ -62,11 +75,21 @@ void drawBoard() {
     cout << "\e[0;31m2048 GAME GO BRRRRR!!!!\n";
     cout << "\e[0;32mTry to get to the 2048 tile!\n";
     cout << "\e[0;34mW: UP, S: DOWN, A: LEFT, D: RIGHT, R: RESTART, Q: QUIT\n\033[0m";
+    // score
+    cout << "\e[0;35mScore: " << score << "\n\033[0m";
+
     for(int i=0; i<SIZE; i++) {
-        cout << "+----+----+----+----+\n|";
+        if (i == 0) {
+            // changed to unicode characters to display the board better
+            cout << "┌────┬────┬────┬────┐\n│"; // Top row
+        } else {
+            cout << "├────┼────┼────┼────┤\n│"; // Middle rows
+        }
+        // cout << "├────┼────┼────┼────┤\n│";
+        // cout << "┌────┬────┬────┬────┐\n│";
         for(int j=0; j<SIZE; j++) {
             if(board[i][j] == 0) {
-                cout << setw(4) << "  " << "|";
+                cout << setw(4) << "  " << "│";
             } else {
                 string colorCode;
                 switch(board[i][j]) {
@@ -81,7 +104,7 @@ void drawBoard() {
                     case 512:  colorCode = "\033[102;37m"; break; // Bright Green background, White text
                     case 1024: colorCode = "\033[106;37m"; break; // Bright Cyan background, White text
                     case 2048: colorCode = "\033[101;37m"; break; // Bright Red background, White text
-                    // Add more cases as needed
+                    // Add more later maybe...
                     default:   colorCode = "\033[0m";  // Reset
                 }
                 int num = board[i][j];
@@ -89,15 +112,15 @@ void drawBoard() {
                 int padding = (4 - numLength) / 2;
                 // If the number is greater than 1000 adjusts padding
                 if (num > 1000) {
-                    cout << colorCode << setw(padding + numLength) << right << num << "\033[0m|";
+                    cout << colorCode << setw(padding + numLength) << right << num << "\033[0m│"; // FYI: the │ is after the color code ie. separate from the color code
                 } else {
-                    cout << colorCode << setw(padding + numLength) << right << num << setw(4 - padding - numLength) << left << " " << "\033[0m|";
+                    cout << colorCode << setw(padding + numLength) << right << num << setw(4 - padding - numLength) << left << " " << "\033[0m│";
                 }
             }
         }
         cout << "\n";
     }
-    cout << "+----+----+----+----+\n";
+    cout << "└────┴────┴────┴────┘\n"; // Bottom row
 }
 
 void commands(char command) {
@@ -169,8 +192,13 @@ void mergeLine(int array[SIZE]) {
         if (array[x] == array[x + 1] && array[x] != 0) {
             array[x] *= 2;
             array[x + 1] = 0;
+            score += array[x]; // update score
         }
     }
+}
+
+int getScore() {
+    return score;
 }
 
 void applyMove(int direction) {
@@ -200,6 +228,43 @@ void applyMove(int direction) {
     }
 }
 
+int getMaxScore() {
+    int max = 0;
+    for(int i=0; i<SIZE; i++) {
+        for(int j=0; j<SIZE; j++) {
+            if(board[i][j] > max) {
+                max = board[i][j];
+            }
+        }
+    }
+    return max;
+}
+
+void writeHighScore(int score) {
+    ofstream file("high_scores.txt", ios_base::app);
+    if (file.is_open()) {
+        file << score << "\n";
+        file.close();
+    }
+}
+
+void printHighScore() {
+    vector<int> highScores;
+    ifstream inputFIle("high_scores.txt");
+    if(inputFIle.is_open()) {
+        int score;
+        while(inputFIle >> score) {
+            highScores.push_back(score);
+        }
+        inputFIle.close();
+    }
+    sort(highScores.begin(), highScores.end(), greater<int>());
+    cout << "\e[0;31mHigh Scores\n\033[0m";
+    for (int i = 0; i < highScores.size() && i < 5; i++) {
+        std::cout << highScores[i] << "\n";
+    }
+}
+
 int main() {
     char commandToChar[128];
     commandToChar['w'] = 0; // up
@@ -216,9 +281,12 @@ int main() {
             drawBoard();
             if(canDoMove() == false) {
                 cout << "\n\e[1;37mGAME OVER\n\033[0m";
+                writeHighScore(score);
+                printHighScore();
                 cout << "\e[0;36mDo you want to play again? \e[0;33m(y/n) \033[0m";
                 char playAgain;
                 cin >> playAgain;
+                cin.ignore();
                 while (playAgain != 'y' && playAgain != 'n')
                 {
                     cout << "\e[0;31mInvalid input. Please enter \e[0;33m(y \033[0mor\e[0;33m n).\033[0m\n\n";
