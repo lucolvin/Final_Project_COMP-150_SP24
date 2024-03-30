@@ -21,6 +21,8 @@ using namespace std;
 int debug = 2;
 // score
 int score = 0;
+// move bool
+bool moveMade = false;
 
 int board[SIZE][SIZE];
 
@@ -123,21 +125,34 @@ void drawBoard() {
     cout << "└────┴────┴────┴────┘\n"; // Bottom row
 }
 
-void commands(char command) {
-    if(command =='q') {
-        cout << "\e[0;31mAre you sure you want to quit? \e[0;33m(y/n) \033[0m";
-        char quit;
-        cin >> quit;
-        if(quit == 'y') {
-            exit(0);
-        }
-    } else if (command == 'r') {
-        cout << "\e[0;31mAre you sure you want to restart? \e[0;33m(y/n) \033[0m";
-        char restart;
-        cin >> restart;
-        if(restart == 'y') {
-            throw runtime_error("restart");
-        }
+bool commands(char command) {
+    switch(command) {
+        case 'q':
+            cout << "\e[0;31mAre you sure you want to quit? \e[0;33m(y/n) \033[0m";
+            char quit;
+            cin >> quit;
+            if(quit == 'y') {
+                exit(0);
+            }
+            return false;
+        case 'r':
+            cout << "\e[0;31mAre you sure you want to restart? \e[0;33m(y/n) \033[0m";
+            char restart;
+            cin >> restart;
+            if(restart == 'y') {
+                score = 0;
+                throw runtime_error("restart");
+            }
+            return false;
+        case 'w':
+        case 'a':
+        case 's':
+        case 'd':
+            // These are valid commands, so a move was made.
+            return true;
+        default:
+            // If the command is not one of the valid commands, no move was made.
+            return false;
     }
 }
 
@@ -274,6 +289,7 @@ int main() {
     
     while(true) {
         srand(time(0));
+        score = 0;
         initializeGame();
         addNewNumber();
         while(true) {
@@ -298,18 +314,21 @@ int main() {
                     return 0;
                 } else {
                     // Fallback. Used to be the invalid input message
-                    cout << "\e[0;31mHuh?.\033[0m";
+                    cout << "\e[0;31mHuh?.\033[0m" << endl;
                     continue;
                 }
             }
             try {
                 char command = getch();
-                commands(command);
-                int currentDirection = commandToChar[command];
-                applyMove(currentDirection);
-                addNewNumber();
+                bool moveMade = commands(command);
+                if (moveMade) {
+                    int currentDirection = commandToChar[command];
+                    applyMove(currentDirection);
+                    addNewNumber();
+                }
             } catch (runtime_error& e) {
                 if (string(e.what()) == "restart") {
+                    score = 0;
                     break;
                 }
             }
