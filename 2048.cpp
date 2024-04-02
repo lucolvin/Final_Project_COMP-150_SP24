@@ -1,6 +1,7 @@
 // Github: https://github.com/lucolvin/Final_Project_COMP-150_SP24
 
 // TODO - Add cross-platform support for getch() function
+// TODO - Add board size options
 
 #include <iostream>
 #include <iomanip>
@@ -128,6 +129,7 @@ void drawBoard() {
 bool commands(char command) {
     switch(command) {
         case 'q':
+        case 'Q':
             cout << "\e[0;31mAre you sure you want to quit? \e[0;33m(y/n) \033[0m";
             char quit;
             cin >> quit;
@@ -136,6 +138,7 @@ bool commands(char command) {
             }
             return false;
         case 'r':
+        case 'R':
             cout << "\e[0;31mAre you sure you want to restart? \e[0;33m(y/n) \033[0m";
             char restart;
             cin >> restart;
@@ -145,9 +148,13 @@ bool commands(char command) {
             }
             return false;
         case 'w':
+        case 'W':
         case 'a':
+        case 'A':
         case 's':
+        case 'S':
         case 'd':
+        case 'D':
             // These are valid commands, so a move was made.
             return true;
         default:
@@ -255,28 +262,29 @@ int getMaxScore() {
     return max;
 }
 
-void writeHighScore(int score) {
+void writeHighScore(int score, string name) {
     ofstream file("high_scores.txt", ios_base::app);
     if (file.is_open()) {
-        file << score << "\n";
+        file << name << ": " << score << "\n";
         file.close();
     }
 }
 
 void printHighScore() {
-    vector<int> highScores;
-    ifstream inputFIle("high_scores.txt");
-    if(inputFIle.is_open()) {
+    vector<pair<int, string > > highScores;
+    ifstream inputFile("high_scores.txt");
+    if(inputFile.is_open()) {
+        string name;
         int score;
-        while(inputFIle >> score) {
-            highScores.push_back(score);
+        while(inputFile >> name >> score) {
+            highScores.push_back(make_pair(score, name));
         }
-        inputFIle.close();
+        inputFile.close();
     }
-    sort(highScores.begin(), highScores.end(), greater<int>());
+    sort(highScores.begin(), highScores.end(), greater<pair<int, string > >());
     cout << "\e[0;31mHigh Scores\n\033[0m";
     for (int i = 0; i < highScores.size() && i < 5; i++) {
-        std::cout << highScores[i] << "\n";
+        cout << i+1 << ". " << highScores[i].second << " " << highScores[i].first << " Points" << "\n";
     }
 }
 
@@ -286,6 +294,11 @@ int main() {
     commandToChar['d'] = 1; // right
     commandToChar['s'] = 2; // down
     commandToChar['a'] = 3; // left
+    // Uppercase commands for convenience when caps lock is on
+    commandToChar['W'] = 0; // up
+    commandToChar['D'] = 1; // right
+    commandToChar['S'] = 2; // down
+    commandToChar['A'] = 3; // left
     
     while(true) {
         srand(time(0));
@@ -297,7 +310,11 @@ int main() {
             drawBoard();
             if(canDoMove() == false) {
                 cout << "\n\e[1;37mGAME OVER\n\033[0m";
-                writeHighScore(score);
+                cout << "\e[0;36mEnter your name: \033[0m" << endl;
+                string name;
+                cin >> name;
+                system("clear");
+                writeHighScore(score, name);
                 printHighScore();
                 cout << "\e[0;36mDo you want to play again? \e[0;33m(y/n) \033[0m";
                 char playAgain;
