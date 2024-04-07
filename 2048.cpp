@@ -7,12 +7,17 @@
 #include <iomanip>
 #include <ctime>
 #include <cstdlib>
-#include <termios.h>
-#include <unistd.h>
 #include <cstdlib>
 #include <fstream>
 #include <vector>
 #include <algorithm>
+//NOTE - This adds cross platform support for getch() function
+#ifdef _WIN32
+    #include <conio.h>
+#else
+    #include <termios.h>
+    #include <unistd.h>
+#endif
 
 #define SIZE 4
 
@@ -30,34 +35,47 @@ int board[SIZE][SIZE];
 // Function prototype for printHighScore
 void printHighScore();
 
-int getch() {
-    struct termios oldt, newt;
-    int ch;
-    tcgetattr( STDIN_FILENO, &oldt );
-    newt = oldt;
-    newt.c_lflag &= ~( ICANON | ECHO );
-    tcsetattr( STDIN_FILENO, TCSANOW, &newt );
-    ch = getchar();
-    if(ch == 27) { // if the first value is esc
-        getchar(); // skip the [
-        switch(getchar()) { // the real value
-            case 'A':
-                ch = 'w';
-                break;
-            case 'B':
-                ch = 's';
-                break;
-            case 'C':
-                ch = 'd';
-                break;
-            case 'D':
-                ch = 'a';
-                break;
-        }
+#ifdef _WIN32
+    void clearScreen() {
+        system("cls");
     }
-    tcsetattr( STDIN_FILENO, TCSANOW, &oldt );
-    return ch;
-}
+
+    int getch() {
+        return _getch();
+    }
+#else
+    void clearScreen() {
+        system("clear");
+    }
+    int getch() {
+        struct termios oldt, newt;
+        int ch;
+        tcgetattr( STDIN_FILENO, &oldt );
+        newt = oldt;
+        newt.c_lflag &= ~( ICANON | ECHO );
+        tcsetattr( STDIN_FILENO, TCSANOW, &newt );
+        ch = getchar();
+        if(ch == 27) { // if the first value is esc
+            getchar(); // skip the [
+            switch(getchar()) { // the real value
+                case 'A':
+                    ch = 'w';
+                    break;
+                case 'B':
+                    ch = 's';
+                    break;
+                case 'C':
+                    ch = 'd';
+                    break;
+                case 'D':
+                    ch = 'a';
+                    break;
+            }
+        }
+        tcsetattr( STDIN_FILENO, TCSANOW, &oldt );
+        return ch;
+    }
+#endif
 
 void initializeGame() {
     for(int i=0; i<SIZE; i++) {
@@ -108,7 +126,7 @@ void drawBoard() {
                     case 1024: colorCode = "\033[106;37m"; break; // Bright Cyan background, White text
                     case 2048: colorCode = "\033[101;37m"; break; // Bright Red background, White text
                     // Add more later maybe...
-                    default:   colorCode = "\033[0m";  // Reset
+                    default:   colorCode = "\033[0m";  // Reset color to white
                 }
                 int num = board[i][j];
                 int numLength = to_string(num).length();
@@ -306,7 +324,7 @@ int main() {
         initializeGame();
         addNewNumber();
         while(true) {
-            system("clear");
+            clearScreen();
             drawBoard();
             if(canDoMove() == false) {
                 cout << "\n\e[1;37mGAME OVER\n\033[0m";
