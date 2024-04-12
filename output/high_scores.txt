@@ -9,3 +9,5 @@ Luke: 7640
 ssssss: 408
 Luke: 13116
 Owen: 384
+Luke: 1396
+Luke: 7504
