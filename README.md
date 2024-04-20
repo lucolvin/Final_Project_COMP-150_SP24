@@ -11,6 +11,8 @@ Use the following keys to move the tiles:
 - 'a' for left
 - 'd' for right
 
+- Uppercase letter and arrow keys are also now supported
+
 The goal is to combine tiles until you create a tile with the number 2048.
 
 ## How to Run
