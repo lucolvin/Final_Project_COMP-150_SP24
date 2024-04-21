@@ -9,6 +9,9 @@
 #include <vector>
 #include <algorithm>
 
+// Adding this to try to get dynamic terminal size integration
+#include <sys/ioctl.h>
+
 //MARK: this is a test
 //NOTE - This adds cross platform support for getch() function... kinda
 #ifdef _WIN32
@@ -99,25 +102,48 @@ private:
 
 public:
     void displayMenu() {
+        // Added to try to get dynamic terminal width
+        struct winsize size;
+        ioctl(STDOUT_FILENO, TIOCGWINSZ, &size);
+
+        // Init an int for terminal width to center the menu
+        // Changed to try to get dynamic terminal width
+        int terminalWidth = size.ws_col;
+        // Clears the screen before the first menu is displayed
+        inputHandler.clearScreen();
         // BTW, this took me way to long to get working correctly
         // Totally worth it though lol
-        cout << "\033[31m .----------------.   \033[33m.----------------.   \033[93m.----------------.   \033[32m.----------------. \n"
-                "\033[31m| .--------------. |\033[33m | .--------------. |\033[93m | .--------------. |\033[32m | .--------------. |\n"
-                "\033[31m| |    _____     | |\033[33m | |     ____     | |\033[93m | |   _    _     | |\033[32m | |     ____     | |\n"
-                "\033[31m| |   / ___ `.   | |\033[33m | |   .'    '.   | |\033[93m | |  | |  | |    | |\033[32m | |   .' __ '.   | |\n"
-                "\033[31m| |  |_/___) |   | |\033[33m | |  |  .--.  |  | |\033[93m | |  | |__| |_   | |\033[32m | |   | (__) |   | |\n"
-                "\033[31m| |   .'____.'   | |\033[33m | |  | |    | |  | |\033[93m | |  |____   _|  | |\033[32m | |   .`____'.   | |\n"
-                "\033[31m| |  / /____     | |\033[33m | |  |  `--'  |  | |\033[93m | |      _| |_   | |\033[32m | |  | (____) |  | |\n"
-                "\033[31m| |  |_______|   | |\033[33m | |   '.____.'   | |\033[93m | |     |_____|  | |\033[32m | |  `.______.'  | |\n"
-                "\033[31m| |              | |\033[33m | |              | |\033[93m | |              | |\033[32m | |              | |\n"
-                "\033[31m| '--------------' |\033[33m | '--------------' |\033[93m | '--------------' |\033[32m | '--------------' |\n"
-                "\033[31m '----------------'   \033[33m'----------------'   \033[93m'----------------'   \033[32m'----------------' \n\033[0m";
-        cout << "\n\n2048 GAME GO BRRRRR!!!!\n";
-        cout << "1. Start Game\n";
-        cout << "2. High Scores\n";
-        cout << "3. Help/Info\n";
-        cout << "4. Quit\n";
-        cout << "Enter your choice: ";
+        cout << "\033[31m .----------------.   \033[33m.----------------.   \033[94m.----------------.   \033[32m.----------------. \n"
+                "\033[31m| .--------------. |\033[33m | .--------------. |\033[94m | .--------------. |\033[32m | .--------------. |\n"
+                "\033[31m| |    _____     | |\033[33m | |     ____     | |\033[94m | |   _    _     | |\033[32m | |     ____     | |\n"
+                "\033[31m| |   / ___ `.   | |\033[33m | |   .'    '.   | |\033[94m | |  | |  | |    | |\033[32m | |   .' __ '.   | |\n"
+                "\033[31m| |  |_/___) |   | |\033[33m | |  |  .--.  |  | |\033[94m | |  | |__| |_   | |\033[32m | |   | (__) |   | |\n"
+                "\033[31m| |   .'____.'   | |\033[33m | |  | |    | |  | |\033[94m | |  |____   _|  | |\033[32m | |   .`____'.   | |\n"
+                "\033[31m| |  / /____     | |\033[33m | |  |  `--'  |  | |\033[94m | |      _| |_   | |\033[32m | |  | (____) |  | |\n"
+                "\033[31m| |  |_______|   | |\033[33m | |   '.____.'   | |\033[94m | |     |_____|  | |\033[32m | |  `.______.'  | |\n"
+                "\033[31m| |              | |\033[33m | |              | |\033[94m | |              | |\033[32m | |              | |\n"
+                "\033[31m| '--------------' |\033[33m | '--------------' |\033[94m | '--------------' |\033[32m | '--------------' |\n"
+                "\033[31m '----------------'   \033[33m'----------------'   \033[94m'----------------'   \033[32m'----------------' \n\033[0m";
+        // cout << "\n\n2048 GAME GO BRRRRR!!!!\n";
+        // cout << "1. Start Game\n";
+        // cout << "2. High Scores\n";
+        // cout << "3. Help/Info\n";
+        // cout << "4. Quit\n";
+        // cout << "Enter your choice: \n";
+
+        //NOTE - Changed this to center the menu using setw() to center the text in the terminal
+        string line1 = "2048 GAME GO BRRRRR!!!!";
+        string line2 = "1. Start Game";
+        string line3 = "2. High Scores";
+        string line4 = "3. Help/Info";
+        string line5 = "4. Quit";
+        string line6 = "Enter your choice: ";
+        cout << setw((terminalWidth + line1.length()) / 2) << line1 << endl;
+        cout << setw((terminalWidth + line2.length()) / 2) << line2 << endl;
+        cout << setw((terminalWidth + line2.length()) / 2) << line3 << endl;
+        cout << setw((terminalWidth + line4.length()) / 2) << line4 << endl;
+        cout << setw((terminalWidth + line5.length()) / 2) << line5 << endl;
+        cout << setw((terminalWidth + line6.length()) / 2) << line6;
     }
     Game() : score(0) { // Constructor to initialize score to 0
         initializeGame();
@@ -150,17 +176,27 @@ public:
     }
 
     void drawBoard() {
+        char* os_env = getenv("OS");
+        string os_str = os_env ? string(os_env) : "";
+        bool isWindows = !os_str.empty() && os_str.find("Windows") != string::npos;
+
+        string topRow = isWindows ? "+----+----+----+----+\n|" : "┌────┬────┬────┬────┐\n│";
+        string middleRow = isWindows ? "+----+----+----+----+\n|" : "├────┼────┼────┼────┤\n│";
+        string bottomRow = isWindows ? "+----+----+----+----+\n" : "└────┴────┴────┴────┘\n";
+
         cout << "\e[0;31m2048 GAME GO BRRRRR!!!!\n";
         cout << "\e[0;32mTry to get to the 2048 tile!\n";
-        cout << "\e[0;34mW: UP, S: DOWN, A: LEFT, D: RIGHT, R: RESTART, Q: QUIT\n\033[0m";
+        cout << "\e[0;34mW: UP, S: DOWN, A: LEFT, D: RIGHT, R: RESTART, Q: QUIT, M: Menu\n\033[0m";
         // score
         cout << "\e[0;35mScore: " << score << "\n\033[0m";
 
-        for(int i=0; i<SIZE; i++) {
+        for(int i = 0; i < SIZE; i++) {
             if (i == 0) {
-                cout << "┌────┬────┬────┬────┐\n│"; // Top row
+                // Changed from a cout statement to a string for os detection
+                cout << topRow; // Top row
             } else {
-                cout << "├────┼────┼────┼────┤\n│"; // Middle rows
+                // Changed from a cout statement to a string for os detection
+                cout << middleRow; // Middle rows
             }
             for(int j=0; j<SIZE; j++) {
                 if(board[i][j] == 0) {
@@ -193,7 +229,7 @@ public:
             }
             cout << "\n";
         }
-        cout << "└────┴────┴────┴────┘\n"; // Bottom row
+        cout << bottomRow << "\n"; // Bottom row
     }
 
 bool commands(char command) {
@@ -227,6 +263,15 @@ bool commands(char command) {
         case 'D':
             // These are valid commands, so a move was made.
             return true;
+        case 'm':
+        case 'M':
+            cout << "\e[0;31mAre you sure you want to return to the main menu? \e[0;33m(y/n) \033[0m";
+            char menu;
+            cin >> menu;
+            if(menu == 'y') {
+                runGame();
+            }
+            // return false;
         default:
             // If the command is not one of the valid commands, no move was made.
             return false;
@@ -389,6 +434,13 @@ void printHighScore() {
             // Update YAY!!! it worked
             cout.flush();
             i++;
+        }
+
+        // This fixes the infinite loop bug when an invalid character is entered in the menu
+        if(cin.fail()) {
+            cin.clear();
+            cin.ignore();
+            continue;
         }
 
         switch(choice) {
