@@ -2,6 +2,10 @@
 
 This is a simple implementation of the popular game 2048, written in C++ for the command line.
 
+## Cross-Platform
+Added cross-platform functionality. 
+Keep in mind this program was made on and for Mac OS so the windows version is a bit sub par.
+At the moment all that means is no unicode so it dosent look as good, but that may change in the future.
 ## How to Play
 
 Use the following keys to move the tiles:
