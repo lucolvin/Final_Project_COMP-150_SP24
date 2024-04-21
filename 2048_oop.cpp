@@ -16,6 +16,7 @@
 //NOTE - This adds cross platform support for getch() function... kinda
 #ifdef _WIN32
     #include <conio.h>
+    #include <windows.h>
 #else
     #include <termios.h>
     #include <unistd.h>
@@ -103,12 +104,23 @@ private:
 public:
     void displayMenu() {
         // Added to try to get dynamic terminal width
-        struct winsize size;
-        ioctl(STDOUT_FILENO, TIOCGWINSZ, &size);
+        // struct winsize size;
+        // ioctl(STDOUT_FILENO, TIOCGWINSZ, &size);
 
+        int terminalWidth;
+        #ifdef _WIN32
+            CONSOLE_SCREEN_BUFFER_INFO csbi;
+            GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+            terminalWidth = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+        #else
+            struct winsize size;
+            ioctl(STDOUT_FILENO, TIOCGWINSZ, &size);
+            terminalWidth = size.ws_col;
+        #endif
         // Init an int for terminal width to center the menu
         // Changed to try to get dynamic terminal width
-        int terminalWidth = size.ws_col;
+        // Woop! Woop! it worked
+        // int terminalWidth = size.ws_col;
         // Clears the screen before the first menu is displayed
         inputHandler.clearScreen();
         // BTW, this took me way to long to get working correctly
