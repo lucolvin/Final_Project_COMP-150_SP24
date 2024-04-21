@@ -193,10 +193,10 @@ public:
         string os_str = os_env ? string(os_env) : "";
         bool isWindows = !os_str.empty() && os_str.find("Windows") != string::npos;
 
+        string cellDivider = isWindows ? "|" : "│";
         string topRow = isWindows ? "+----+----+----+----+\n|" : "┌────┬────┬────┬────┐\n│";
         string middleRow = isWindows ? "+----+----+----+----+\n|" : "├────┼────┼────┼────┤\n│";
         string bottomRow = isWindows ? "+----+----+----+----+\n" : "└────┴────┴────┴────┘\n";
-        string cellDivider = isWindows ? "|" : "│";
 
         cout << "\e[0;31m2048 GAME GO BRRRRR!!!!\n";
         cout << "\e[0;32mTry to get to the 2048 tile!\n";
@@ -218,7 +218,7 @@ public:
                 } else {
                     string colorCode;
                     switch(board[i][j]) {
-                        case 2:    colorCode = "\033[47;30m"; break; // White background, Black text
+                        case 2:    colorCode = ""; break; // White background, Black text
                         case 4:    colorCode = "\033[44;37m"; break; // Blue background, White text
                         case 8:    colorCode = "\033[42;37m"; break; // Green background, White text
                         case 16:   colorCode = "\033[46;37m"; break; // Cyan background, White text
