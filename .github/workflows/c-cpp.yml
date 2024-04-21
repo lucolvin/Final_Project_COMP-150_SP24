@@ -20,3 +20,8 @@ jobs:
 
       - name: Build with g++ 
         run: g++ 2048_oop.cpp -o 2048
+
+      # If the run is successful it outputs a successful message
+      - name: Success message
+        run: echo "Build successful"
+
