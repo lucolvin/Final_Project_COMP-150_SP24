@@ -235,7 +235,7 @@ public:
                     int numLength = to_string(num).length();
                     int padding = (4 - numLength) / 2;
                     if (num > 1000) {
-                        cout << colorCode << setw(padding + numLength) << right << num << "\033[0m│";
+                        cout << colorCode << setw(padding + numLength) << right << num << "\033[0m" << cellDivider;
                     } else {
                         cout << colorCode << setw(padding + numLength) << right << num << setw(4 - padding - numLength) << left << " " << "\033[0m" << cellDivider;
                     }
