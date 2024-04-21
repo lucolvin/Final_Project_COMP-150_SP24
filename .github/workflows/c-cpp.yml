@@ -19,4 +19,4 @@ jobs:
         run: sudo apt-get install g++
 
       - name: Build with g++ 
-        run: g++ 2048.cpp -o 2048
+        run: g++ 2048_oop.cpp -o 2048
