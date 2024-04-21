@@ -218,7 +218,7 @@ public:
                 } else {
                     string colorCode;
                     switch(board[i][j]) {
-                        case 2:    colorCode = ""; break; // White background, Black text
+                        case 2:    colorCode = "\033[47;30m"; break; // White background, Black text
                         case 4:    colorCode = "\033[44;37m"; break; // Blue background, White text
                         case 8:    colorCode = "\033[42;37m"; break; // Green background, White text
                         case 16:   colorCode = "\033[46;37m"; break; // Cyan background, White text
