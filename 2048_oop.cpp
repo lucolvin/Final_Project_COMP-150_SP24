@@ -10,7 +10,7 @@
 #include <algorithm>
 
 // Adding this to try to get dynamic terminal size integration
-#include <sys/ioctl.h>
+// #include <sys/ioctl.h>
 
 //MARK: this is a test
 //NOTE - This adds cross platform support for getch() function... kinda
@@ -20,6 +20,7 @@
 #else
     #include <termios.h>
     #include <unistd.h>
+    #include <sys/ioctl.h>
 #endif
 
 #define SIZE 4
