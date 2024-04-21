@@ -196,6 +196,7 @@ public:
         string topRow = isWindows ? "+----+----+----+----+\n|" : "┌────┬────┬────┬────┐\n│";
         string middleRow = isWindows ? "+----+----+----+----+\n|" : "├────┼────┼────┼────┤\n│";
         string bottomRow = isWindows ? "+----+----+----+----+\n" : "└────┴────┴────┴────┘\n";
+        string cellDivider = isWindows ? "|" : "│";
 
         cout << "\e[0;31m2048 GAME GO BRRRRR!!!!\n";
         cout << "\e[0;32mTry to get to the 2048 tile!\n";
@@ -213,7 +214,7 @@ public:
             }
             for(int j=0; j<SIZE; j++) {
                 if(board[i][j] == 0) {
-                    cout << setw(4) << "  " << "|";
+                    cout << setw(4) << "  " << cellDivider;
                 } else {
                     string colorCode;
                     switch(board[i][j]) {
@@ -236,7 +237,7 @@ public:
                     if (num > 1000) {
                         cout << colorCode << setw(padding + numLength) << right << num << "\033[0m│";
                     } else {
-                        cout << colorCode << setw(padding + numLength) << right << num << setw(4 - padding - numLength) << left << " " << "\033[0m│";
+                        cout << colorCode << setw(padding + numLength) << right << num << setw(4 - padding - numLength) << left << " " << "\033[0m" << cellDivider;
                     }
                 }
             }
