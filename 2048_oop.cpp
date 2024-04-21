@@ -213,7 +213,7 @@ public:
             }
             for(int j=0; j<SIZE; j++) {
                 if(board[i][j] == 0) {
-                    cout << setw(4) << "  " << "│";
+                    cout << setw(4) << "  " << "|";
                 } else {
                     string colorCode;
                     switch(board[i][j]) {
