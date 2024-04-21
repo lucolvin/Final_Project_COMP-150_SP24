@@ -193,8 +193,8 @@ public:
         string os_str = os_env ? string(os_env) : "";
         bool isWindows = !os_str.empty() && os_str.find("Windows") != string::npos;
 
-        string topRow = isWindows ? "+----+----+----+----+\n" : "┌────┬────┬────┬────┐\n│";
-        string middleRow = isWindows ? "+----+----+----+----+\n" : "├────┼────┼────┼────┤\n│";
+        string topRow = isWindows ? "+----+----+----+----+\n|" : "┌────┬────┬────┬────┐\n│";
+        string middleRow = isWindows ? "+----+----+----+----+\n|" : "├────┼────┼────┼────┤\n│";
         string bottomRow = isWindows ? "+----+----+----+----+\n" : "└────┴────┴────┴────┘\n";
 
         cout << "\e[0;31m2048 GAME GO BRRRRR!!!!\n";
