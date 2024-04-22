@@ -123,7 +123,7 @@ public:
         // Woop! Woop! it worked
         // int terminalWidth = size.ws_col;
         // Clears the screen before the first menu is displayed
-        inputHandler.clearScreen();
+        // inputHandler.clearScreen();
         // BTW, this took me way to long to get working correctly
         // Totally worth it though lol
         cout << "\033[31m .----------------.   \033[33m.----------------.   \033[94m.----------------.   \033[32m.----------------. \n"
@@ -469,7 +469,7 @@ void printHighScore() {
                 helpMenu();
                 break;
             case 4: // Quit
-                return;
+                exit(0); // Fixes the bug where the program would not exit and would return to the game instead
             default:
                 cout << "Invalid choice. Please try again.\n";
         }
