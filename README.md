@@ -25,3 +25,6 @@ To compile the game, use the following command:
 
 ```bash
 g++ -o 2048 2048.cpp
+```
+
+> [!CAUTION]
