@@ -28,5 +28,4 @@ g++ -o 2048 2048.cpp
 ```
 
 > [!CAUTION]
-> This is still a **_very_** rough personal project of mine in its infancy. I’m open-sourcing it now in order to accept contributors sooner and to better facilitate the direction of the project from an earlier stage.
-> There **_are_** bugs, and there will **_very likely_** be breaking changes!
+> test
