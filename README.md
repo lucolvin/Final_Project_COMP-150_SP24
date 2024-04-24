@@ -28,4 +28,7 @@ g++ -o 2048 2048.cpp
 ```
 
 > [!CAUTION]
-> test
+> To compile after adding the centered ascii art need to use
+```bash
+g++ -std=c++11 ascii-art-test.cpp -o ascii-art-test 
+```
