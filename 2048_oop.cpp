@@ -28,6 +28,7 @@
 using namespace std;
 
 // For debugging purposes you can set one of the initial two tiles to a specific number
+// Set to 2 for default behavior
 int debug = 2;
 
 // **Input Handler Class (Private)**
@@ -218,17 +219,18 @@ public:
                 } else {
                     string colorCode;
                     switch(board[i][j]) {
+                        // 30m is black text, 37m is white text
                         case 2:    colorCode = "\033[47;30m"; break; // White background, Black text
                         case 4:    colorCode = "\033[44;37m"; break; // Blue background, White text
-                        case 8:    colorCode = "\033[42;37m"; break; // Green background, White text
-                        case 16:   colorCode = "\033[46;37m"; break; // Cyan background, White text
+                        case 8:    colorCode = "\033[42;30m"; break; // Green background, Black text
+                        case 16:   colorCode = "\033[46;30m"; break; // Cyan background, Black text
                         case 32:   colorCode = "\033[41;37m"; break; // Red background, White text
                         case 64:   colorCode = "\033[45;37m"; break; // Purple background, White text
-                        case 128:  colorCode = "\033[43;37m"; break; // Brown background, White text
-                        case 256:  colorCode = "\033[104;37m"; break; // Bright Blue background, White text
-                        case 512:  colorCode = "\033[102;37m"; break; // Bright Green background, White text
+                        case 128:  colorCode = "\033[43;30m"; break; // Brown background, Black text
+                        case 256:  colorCode = "\033[104;30m"; break; // Bright Blue background, Black text
+                        case 512:  colorCode = "\033[102;30m"; break; // Bright Green background, Black text
                         case 1024: colorCode = "\033[106;37m"; break; // Bright Cyan background, White text
-                        case 2048: colorCode = "\033[101;37m"; break; // Bright Red background, White text
+                        case 2048: colorCode = "\033[101;30m"; break; // Bright Red background, Black text
                         default:   colorCode = "\033[0m";  // Reset color to white
                     }
                     int num = board[i][j];
@@ -428,7 +430,7 @@ void printHighScore() {
     }
     void helpMenu() {
         inputHandler.clearScreen();
-        cout << "2048 is a single-player sliding block puzzle game designed by Italian web developer Gabriele Cirulli.\n";
+        cout << "2048 is a single-player sliding block puzzle game originally designed by Italian web developer Gabriele Cirulli.\n";
         cout << "The game's objective is to slide numbered tiles on a grid to combine them to create a tile with the number 2048.\n";
         cout << "The game is won when a tile with a value of 2048 appears on the board, hence the name of the game.\n";
         cout << "After reaching the 2048 tile, players can continue to play to reach higher scores.\n";
@@ -540,6 +542,7 @@ void printHighScore() {
     }
 };
 
+// Main function
 int main() {
     Game game;
     game.runGame();
