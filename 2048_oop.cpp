@@ -38,6 +38,7 @@ using namespace std;
 // Set to 2 for default behavior
 int debug = 2;
 
+
 // InputHandler class to handle input
 class InputHandler {
 // Public functions
@@ -541,6 +542,18 @@ int getMaxScore() {
     return max;
 }
 
+// function to check if the user has achieved a 2048 tile and returns a boolean value
+bool hasWon() {
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            if (board[i][j].getValue() == 2048) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 // function to write the high score to a file and returns void because it does not return anything
 void writeHighScore(int score, string name) {
     // uses the ofstream class to write the high score to a file named high_scores.txt
@@ -552,35 +565,52 @@ void writeHighScore(int score, string name) {
         file.close();
     }
 }
-//MARK: this is where I left off of adding comments
-//TODO - Finish adding comments
+
+// Function to print the high score to the user and returns void because it does not return anything
 void printHighScore() {
+    // uses a vector of pairs to store the high scores along with the names
     vector<pair<int, string > > highScores;
+    // Inports the high scores from the file high_scores.txt
     ifstream inputFile("high_scores.txt");
+    // Checks if the file is open and if it is then it reads the high scores from the file and stores them in the vector
     if(inputFile.is_open()) {
+        // initializes the string name and the int score
         string name;
         int score;
+        // while loop to read the high scores from the file and store them in the vector
         while(inputFile >> name >> score) {
             highScores.push_back(make_pair(score, name));
         }
+        // closes the file
         inputFile.close();
     }
+    // functionality to sort the high scores in descending order
     sort(highScores.begin(), highScores.end(), greater<pair<int, string > >());
+    // outputs title at the top of the list of high scores
     cout << "\e[0;31mHigh Scores\n\033[0m";
+    // for loop to print the high scores to the user
     for (int i = 0; i < highScores.size() && i < 5; i++) {
+        // outputs the high scores to the user with the name and score
         cout << i+1 << ". " << highScores[i].second << " " << highScores[i].first << " Points" << "\n";
     }
 }
 
+    // function to process the input from the user and returns void because it does not return anything
     void processInput() {
+        // calls the getCommand function from the inputHandler class to get the command from the user
         char command = inputHandler.getCommand();
+        // calls the commands function with the users command as an argument returns a boolean value
         bool moveMade = commands(command);
+        // checks if a move was made and if it was then it applies the move and adds a new number to the board
         if (moveMade) {
             int currentDirection = commandToChar[command];
             applyMove(currentDirection);
             addNewNumber();
         }
     }
+
+    // Simple help menu to explain the game to the user
+    //TODO - Add a better help menu
     void helpMenu() {
         inputHandler.clearScreen();
         cout << "2048 is a single-player sliding block puzzle game originally designed by Italian web developer Gabriele Cirulli.\n";
@@ -591,12 +621,20 @@ void printHighScore() {
         cout << "The game's source code can be found at... add github link later when/if I make it public\n";
         cout << "Press any key to return to the main menu.\n";
     }
+
+    // function to run the game and returns void because it does not return anything
     void runGame() {
+    // while loop to run the game
     while(true) {
+        // inits an int for the user's choice
         int choice;
+        // inits int i to 0
         int i = 0;
+        // calls the displayMenu function to display the menu to the user
         displayMenu();
+        // gets the user's choice
         cin >> choice;
+        // clears the screen on the first iteration of the loop
         while(i < 1) {
             inputHandler.clearScreen();
             // Maybe fix for initial clear screen
@@ -606,31 +644,42 @@ void printHighScore() {
         }
 
         // This fixes the infinite loop bug when an invalid character is entered in the menu
+        // checks for invalid input and clears the cin buffer so that the program does not get stuck in an infinite loop
         if(cin.fail()) {
             cin.clear();
             cin.ignore();
             continue;
         }
 
+        // switch statement to handle the user's choice in the main menu
         switch(choice) {
+            // case for the start game option
             case 1: // Start Game
                 startGame();
                 break;
+            // case for the view high scores option
             case 2: // View High Scores
                 inputHandler.clearScreen();
                 printHighScore();
                 break;
+            // case for the help menu option
             case 3: // Help Menu
                 helpMenu();
                 break;
+            // case for the quit option
             case 4: // Quit
                 exit(0); // Fixes the bug where the program would not exit and would return to the game instead
+            // default case which handles invalid input
+            //TODO - Move this to the bottom instead of the top when it is output
             default:
                 cout << "\n\033[31m ! Invalid choice. Please try again. !\033[0m\n\n";
         }
     }
 }
+
+    // function to start the game and returns void because it does not return anything
     void startGame() {
+        // converts the commands to characters
         commandToChar['w'] = 0; // up
         commandToChar['d'] = 1; // right
         commandToChar['s'] = 2; // down
@@ -641,51 +690,125 @@ void printHighScore() {
         commandToChar['S'] = 2; // down
         commandToChar['A'] = 3; // left
 
+        // inits bools for the end game and the first run
+        // for the win game functionality
+        bool endGame = false;
+        bool firstRun = true;
+
+        // while loop for the main game loop
         while(true) {
+            // initializes the random seed to get a pseudo-random number
             srand(time(0));
+            // sets the score to 0
             score = 0;
+            // calls the initializeGame function to initialize the game board on the initial run
             initializeGame();
+            // calls the addNewNumber function to add a new number to the board in the initial run
             addNewNumber();
+            // while loop for the game loop
             while(true) {
+                // calls the clearScreen from the inputHandler to clear the screen
                 inputHandler.clearScreen();
+                // calls the drawBoard function to draw the board to the user
                 drawBoard();
-                if(canDoMove() == false) {
+                // for (int i = 0; i < 4; i++) {
+                // You cant do that Luke... facepalm
+                // Functionality to check if the user has won the game ie. reached 2048
+                if (hasWon() && firstRun == true) {
+                    // sets the first run to false so that the message only appears once
+                    firstRun = false;
+                    // inits a char to store the user's choice
+                    char choice;
+                    // I freaking love this bit of code!!!
+                    // makes the message a string
+                    string message = "You've reached 2048! Would you like to continue playing? (y/n): ";
+                    // inits an array of color codes to change the color of the message
+                    int colorCodes[] = {31, 33, 32, 36, 34, 35}; // Red, Yellow, Green, Cyan, Blue, Magenta
+                    // outputs the message to the user as a rainbow
+                    for (int i = 0; i < message.size(); ++i) {
+                        // outputs the message by changing the color of each character in the message
+                        // uses the modulus operator to loop through the color codes
+                        cout << "\033[" << colorCodes[i % 6] << "m" << message[i];
+                    }
+                    // resets the color to default
+                    cout << "\033[0m" << endl;
+                    // gets the user's input
+                    cin >> choice;
+                    // if the user enters n, then the endGame bool is set to false which triggers the game over message
+                    if (choice == 'n' || choice == 'N') {
+                        endGame = true;
+                    // if the user enters y, then the game continues
+                    } else if (choice == 'y' || choice == 'Y') {
+                            // firstRun = true;
+                            continue;
+                    }
+                }
+                // checks if a move can be made by checking the canDoMove function
+                if(endGame || canDoMove() == false) {
+                    // outputs the game over message to the user if no move can be made
                     cout << "\n\e[1;37mGAME OVER\n\033[0m";
+                    // gets the user's name to write to the high scores file
                     cout << "\e[0;36mEnter your name: \033[0m" << endl;
+                    // initializes the string name to store the user's name
                     string name;
+                    // gets the user's name
                     cin >> name;
-                    system("clear");
+                    // clears the screen
+                    inputHandler.clearScreen();
+                    // writes the high score to the file using the writeHighScore function with the user's name and score as arguments
                     writeHighScore(score, name);
+                    // call the printHighScore function to print the high scores to the user
                     printHighScore();
+                    // asks the user if they want to play again
                     cout << "\e[0;36mDo you want to play again? \e[0;33m(y/n) \033[0m";
+                    // inits a char to store the user's choice to play again
                     char playAgain;
+                    // gets the user's choice to play again
                     cin >> playAgain;
+                    // clears the cin buffer
                     cin.ignore();
+                    // checks if the user's choice is valid
                     while (playAgain != 'y' && playAgain != 'n')
                     {
+                        // outputs an invalid input message to the user if the input is not a y or n
                         cout << "\e[0;31mInvalid input. Please enter \e[0;33m(y \033[0mor\e[0;33m n).\033[0m\n\n";
+                        // goes back to the play again prompt
                         cin >> playAgain;
                     }
+                    // if the user enters y and if it is then it clears the screen and breaks the loop to play again
                     if(playAgain == 'y') {
+                        // clears the screen to ensure the screen only shows the game board when starting a new game
+                        inputHandler.clearScreen();
                         break;
+                    // If the user enters n, then it clears the screen and returns to the main menu
                     } else if (playAgain == 'n') {
+                        inputHandler.clearScreen();
                         return;
                     } else {
                         // Fallback. Used to be the invalid input message
+                        // currently does nothing but ignore the invalid input the output is canceled by the clearScreen
                         cout << "\e[0;31mHuh?.\033[0m" << endl;
                         continue;
                     }
                 }
+                // calls the processInput function to process the user's input
+                // uses a try catch block to catch the restart exception
                 try {
                     char command = inputHandler.getch();
                     bool moveMade = commands(command);
                     if (moveMade) {
+                        // uses unsigned char to convert the command to a character because I was getting a warning and this was the fix
                         int currentDirection = commandToChar[static_cast<unsigned char>(command)];
+                        // applies the move to the board
                         applyMove(currentDirection);
+                        // adds a new number to the board
                         addNewNumber();
                     }
+                // if the user enters r, then it throws a runtime error to restart the game
+                // this fixed a bug that I had that if I canceled the restart it would still add a tile which made it weird
                 } catch (runtime_error& e) {
                     if (string(e.what()) == "restart") {
+                        // resets the score to 0 if the user chooses to restart the game
                         score = 0;
                         break;
                     }
@@ -697,7 +820,10 @@ void printHighScore() {
 
 // Main function
 int main() {
+    // initializes the game class
     Game game;
+    // calls the runGame function to run the game
     game.runGame();
+    // returns 0 to end the program
     return 0;
 }

@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "*.hbs": "handlebars",
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "vector": "cpp"
     }
 }
