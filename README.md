@@ -46,10 +46,11 @@ The high scores are read from high_scores.txt and sorted to the top 5 then displ
 
 
 ## Game board Unix
+Game board on Unix uses unicode characters to draw the board
 <img width="461" alt="Screenshot 2024-05-02 at 3 30 02 PM" src="https://github.com/lucolvin/Final_Project_COMP-150_SP24/assets/97006355/3d59c0b8-ee8f-49c2-a54e-51bd5e1444a3">
 
 ## Game board Windows
-Game board on windows uses ascii instead of unicode to avoid terminal issues. All other functionality is preserved between operating systems <br>
+The game board on windows uses ascii instead of unicode to avoid terminal issues. All other functionality is preserved between operating systems <br>
 ![windows_game_board](https://github.com/lucolvin/Final_Project_COMP-150_SP24/assets/97006355/20af8ee6-fa50-4256-8667-9e609c788d00)
 
 
