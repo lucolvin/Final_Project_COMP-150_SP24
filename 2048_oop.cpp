@@ -1,5 +1,9 @@
-// OOP Kind of working need a private class for input handler
-// Fixed kindda need to add more private fields and methods
+/*
+COMP-150 Final Project
+2048 Game
+Author: Luke A. Colvin
+Date: 05/03/2024
+*/
 
 #include <iostream>
 #include <iomanip>
@@ -12,7 +16,6 @@
 // Adding this to try to get dynamic terminal size integration
 // #include <sys/ioctl.h>
 
-//MARK: this is a test
 //NOTE - This adds cross platform support for getch() function... kinda
 #ifdef _WIN32
     #include <conio.h>
@@ -23,40 +26,62 @@
     #include <sys/ioctl.h>
 #endif
 
+// Define the size of the board
+// I wanted to add functionality to change the size of the board but I did not get to it
+// Functionality to change the size of the board is here and the game runs fine but the board is not displayed correctly
 #define SIZE 4
 
+// Using the standard namespace
 using namespace std;
 
 // For debugging purposes you can set one of the initial two tiles to a specific number
 // Set to 2 for default behavior
 int debug = 2;
 
-// **Input Handler Class (Private)**
+// InputHandler class to handle input
 class InputHandler {
+// Public functions
 public:
+    // Function to clear the screen with a preprocessor for Windows and Unix system detection
     #ifdef _WIN32
+    // Clear screen function for Windows
     void clearScreen() {
+        // Clears the screen for Windows systems with the correct command
         system("cls");
     }
 
     int getch() {
+        // _getch() function for Windows
         return _getch();
     }
-    #else
+    #else // Else is unix system
+    // Clear screen function for Unix
     void clearScreen() {
+        // Clears the screen for Unix systems with the correct command
         system("clear");
     }
+
+    // Function to get a character from the user for the user input while in the game
+    // I used this so that the user does not have to press enter after each move
     int getch() {
+        // Structs to store the terminal settings
         struct termios oldt, newt;
+        // int to store the character
         int ch;
+        // Get the terminal settings
         tcgetattr( STDIN_FILENO, &oldt );
+        // set the new terminal settings
         newt = oldt;
+        // Set the new terminal settings to not require enter key press
         newt.c_lflag &= ~( ICANON | ECHO );
+        // Apply the new terminal settings
         tcsetattr( STDIN_FILENO, TCSANOW, &newt );
+        // Get the character from the user
         ch = getchar();
         if(ch == 27) { // if the first value is esc
             getchar(); // skip the [
-            switch(getchar()) { // the real value
+            // Uses a switch statement to get the input from the arrow keys
+            switch(getchar()) { // the real value of the arrow key
                 case 'A':
                     ch = 'w';
                     break;
@@ -71,13 +96,18 @@ public:
                     break;
             }
         }
+        // reset the terminal settings
         tcsetattr( STDIN_FILENO, TCSANOW, &oldt );
         return ch;
     }
+    // Ends the preprocessor for Unix systems
     #endif
+
+    // Function to get the command from the user
     char getCommand() {
+        // sets the key to the getch() function
         int key = getch();
-        // Conversion from key codes to wasd
+        // Conversion from key codes to wasd and q for quit, r for restart, and sets an invalid key to x
         switch(key) {
             case 'q':
             case 'Q': return 'q'; 
@@ -96,27 +126,60 @@ public:
     }
 };
 
-class Game {
+// Tile class to handle the tiles on the board
+class tile {
+// Private integer value for the tile
 private:
-    int board[SIZE][SIZE];
+    int value;
+public:
+    // Constructor to initialize the value to 0
+    tile() : value(0) {}
+
+    // getter for the value
+    int getValue() {
+        return value;
+    }
+
+    // setter for the value
+    void setValue(int newValue) {
+        // sets the value to the new value after a move
+        value = newValue;
+    }
+};
+
+// Game class to handle the game logic
+class Game {
+// private variables for the game class
+private:
+    // creates a 2D array of tiles for the board
+    tile board[SIZE][SIZE];
+    // initializes the score to 0
     int score;
+    // creates an instance of the InputHandler class
     InputHandler inputHandler;
+    // creates an array to convert the commands to characters
     char commandToChar[128];
 
+// Public functions for the game class
 public:
     void displayMenu() {
         // Added to try to get dynamic terminal width
         // struct winsize size;
         // ioctl(STDOUT_FILENO, TIOCGWINSZ, &size);
 
+        // Init an int for terminal width to be able to center the menu
         int terminalWidth;
+        // preprocessor for Windows detection to get the terminal width on Windows to work
         #ifdef _WIN32
             CONSOLE_SCREEN_BUFFER_INFO csbi;
             GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
             terminalWidth = csbi.srWindow.Right - csbi.srWindow.Left + 1;
         #else
+            // init a struct for the terminal width on Unix systems
             struct winsize size;
+            // get the terminal width using ioctl on Unix systems
             ioctl(STDOUT_FILENO, TIOCGWINSZ, &size);
+            // set the terminal width variable to be the width of the terminal
             terminalWidth = size.ws_col;
         #endif
         // Init an int for terminal width to center the menu
@@ -146,12 +209,15 @@ public:
         // cout << "Enter your choice: \n";
 
         //NOTE - Changed this to center the menu using setw() to center the text in the terminal
+        // makes the menu centered in the terminal by using the terminal width and changing the output of each line to its own string
         string line1 = "2048 GAME GO BRRRRR!!!!";
         string line2 = "1. Start Game";
         string line3 = "2. High Scores";
         string line4 = "3. Help/Info";
         string line5 = "4. Quit";
         string line6 = "Enter your choice: ";
+        // Outputs the menu centered in the terminal
+        // It centers the menu by using the terminal width plus the length of the line and divided by 2
         cout << setw((terminalWidth + line1.length()) / 2) << line1 << endl;
         cout << setw((terminalWidth + line2.length()) / 2) << line2 << endl;
         cout << setw((terminalWidth + line2.length()) / 2) << line3 << endl;
@@ -166,6 +232,7 @@ public:
         for (int i = 0; i < 128; i++) {
             commandToChar[i] = -1;
         }
+        // I am aware that it doesn't like that im using a char as an index but it works and the validations prevent any errors
         commandToChar['w'] = 0; // up
         commandToChar['d'] = 1; // right
         commandToChar['s'] = 2; // down
@@ -177,48 +244,66 @@ public:
         commandToChar['A'] = 3; // left
     }
 
+    // Initializes the game board to all 0's
     void initializeGame() {
         for(int i=0; i<SIZE; i++) {
             for(int j=0; j<SIZE; j++) {
-                board[i][j] = 0;
+                board[i][j].setValue(0);
             }
         }
-        // Add a tile at a random position for debugging
+        // Adds one random number to the board and also the debug number if it is set
         int randIndexI = rand() % SIZE;
         int randIndexJ = rand() % SIZE;
-        board[randIndexI][randIndexJ] = debug;
+        // This is the debug number that can be set at the top of the file
+        board[randIndexI][randIndexJ].setValue(debug);
     }
 
+    // Function to draw the board is set to void because it does not return anything
     void drawBoard() {
+        // Added to implement cross platform support
         char* os_env = getenv("OS");
+        // gets the os string from the environment variable
         string os_str = os_env ? string(os_env) : "";
+        // If the os string is not empty and it contains Windows, then it is a Windows system
         bool isWindows = !os_str.empty() && os_str.find("Windows") != string::npos;
-
+        
+        // Added to implement cross platform support
+        // And it worked... Shocker...
+        // The strings are used to draw the board and can switch from unicode to ascii characters
         string cellDivider = isWindows ? "|" : "│";
         string topRow = isWindows ? "+----+----+----+----+\n|" : "┌────┬────┬────┬────┐\n│";
         string middleRow = isWindows ? "+----+----+----+----+\n|" : "├────┼────┼────┼────┤\n│";
         string bottomRow = isWindows ? "+----+----+----+----+\n" : "└────┴────┴────┴────┘\n";
 
+        // This shows the options available to the user while in the game
         cout << "\e[0;31m2048 GAME GO BRRRRR!!!!\n";
         cout << "\e[0;32mTry to get to the 2048 tile!\n";
+        //TODO - Add different colors to the different options
         cout << "\e[0;34mW: UP, S: DOWN, A: LEFT, D: RIGHT, R: RESTART, Q: QUIT, M: Menu\n\033[0m";
-        // score
+        // Outputs the score to the user while in the game
         cout << "\e[0;35mScore: " << score << "\n\033[0m";
 
+        // for loop for the initial row of the board
         for(int i = 0; i < SIZE; i++) {
             if (i == 0) {
-                // Changed from a cout statement to a string for os detection
-                cout << topRow; // Top row
+                // Outputs the top row of the board only for the first row
+                cout << topRow;
             } else {
-                // Changed from a cout statement to a string for os detection
-                cout << middleRow; // Middle rows
+                // Outputs the middle row of the board for all other rows except the last row
+                cout << middleRow;
             }
+            // for loop to draw the board using the string variables for the board
             for(int j=0; j<SIZE; j++) {
-                if(board[i][j] == 0) {
+                // If the value of the tile is 0, then it outputs a space that is output as a blank tile
+                if(board[i][j].getValue() == 0) {
                     cout << setw(4) << "  " << cellDivider;
                 } else {
+                    // initializes the color code for the tiles
                     string colorCode;
-                    switch(board[i][j]) {
+                    // sets the color code based on the value of the tile
+                    int tileValue = board[i][j].getValue();
+                    // switch statement to set the color code based on the value of the tile
+                    switch(tileValue) {
                         // 30m is black text, 37m is white text
                         case 2:    colorCode = "\033[47;30m"; break; // White background, Black text
                         case 4:    colorCode = "\033[44;37m"; break; // Blue background, White text
@@ -233,42 +318,61 @@ public:
                         case 2048: colorCode = "\033[101;30m"; break; // Bright Red background, Black text
                         default:   colorCode = "\033[0m";  // Reset color to white
                     }
-                    int num = board[i][j];
+                    // sets the number of the tile to the value of the tile
+                    int num = tileValue;
+                    // sets the length of the number to the length of the number converted to a string to get the padding for the tile correctly
                     int numLength = to_string(num).length();
+                    // sets the padding for the tile to center the number in the tile
                     int padding = (4 - numLength) / 2;
+                    // outputs the tile with the color code, padding, number, and cell divider
                     if (num > 1000) {
+                        // Outputs the color code, padding, number, and cell divider
                         cout << colorCode << setw(padding + numLength) << right << num << "\033[0m" << cellDivider;
                     } else {
+                        // Outputs the color code, padding, number, and cell divider with fixed padding for numbers larger than 1000
                         cout << colorCode << setw(padding + numLength) << right << num << setw(4 - padding - numLength) << left << " " << "\033[0m" << cellDivider;
                     }
                 }
             }
+            // new line
             cout << "\n";
         }
-        cout << bottomRow << "\n"; // Bottom row
+        // outputs the bottom row of the board only for the last row
+        cout << bottomRow << "\n";
     }
 
+// This function handles the commands that the user can input while in the game and returns a boolean value
 bool commands(char command) {
+    // swoitch statement to handle the commands that the user can input
     switch(command) {
+        // case for the quit command
         case 'q':
         case 'Q':
+            // Gives the user a choice to quit the game or continue playing
             cout << "\e[0;31mAre you sure you want to quit? \e[0;33m(y/n) \033[0m";
             char quit;
             cin >> quit;
+            // if the user enters y, then the program exits and if not it continues
+            //TODO - Add validation for the quit command to only accept y or n
             if(quit == 'y') {
                 exit(0);
             }
             return false;
+        // case for the restart command
         case 'r':
         case 'R':
+            // Gives the user a choice to restart the game or continue playing
             cout << "\e[0;31mAre you sure you want to restart? \e[0;33m(y/n) \033[0m";
             char restart;
             cin >> restart;
+            // if the user enters y, then the game restarts and if not it continues
+            //TODO - Add validation for the restart command to only accept y or n
             if(restart == 'y') {
                 score = 0;
                 throw runtime_error("restart");
             }
             return false;
+        // cases for the valid move commands
         case 'w':
         case 'W':
         case 'a':
@@ -279,11 +383,15 @@ bool commands(char command) {
         case 'D':
             // These are valid commands, so a move was made.
             return true;
+        // case for the main menu command
         case 'm':
         case 'M':
+            // Gives the user a choice to return to the main menu or continue playing
             cout << "\e[0;31mAre you sure you want to return to the main menu? \e[0;33m(y/n) \033[0m";
             char menu;
             cin >> menu;
+            // if the user enters y, then the program returns to the main menu and if not it continues
+            //TODO - Add validation for the main menu command to only accept y or n
             if(menu == 'y') {
                 runGame();
             }
@@ -294,71 +402,104 @@ bool commands(char command) {
     }
 }
 
+// Function to add a new number to the board after a move returns void because it does not return anything
 void addNewNumber() {
+    // initializes the array of available spots to move to and the number of available spots to 0
     int available[SIZE*SIZE][2], numAvailable = 0;
+    // for loop to get the available spots to move to
     for(int i=0; i<SIZE; i++) {
+        // for loop to get the available spots to move to
         for(int j=0; j<SIZE; j++) {
-            if(board[i][j] == 0) {
+            // this checks if the value of the tile is 0 and if it is then it adds the spot to the available spots array
+            if(board[i][j].getValue() == 0) {
                 available[numAvailable][0] = i;
                 available[numAvailable][1] = j;
+                // itterates the number of available spots
                 numAvailable++;
             }
         }
     }
     
+    // if an available spot is found, then it adds a new number to the board
     if(numAvailable > 0) {
+        // randomizes the index of the available spots to move to
         int randIndex = rand() % numAvailable;
+        // randomizes the number to add to the board between 2 and 4
         int randNumber = 2 * (rand() % 2 + 1);
-        board[available[randIndex][0]][available[randIndex][1]] = randNumber;
+        // sets the value of the tile to the random number
+        board[available[randIndex][0]][available[randIndex][1]].setValue(randNumber);
     }
 }
 
+// this function contains the logic to check if a move can be made and returns a boolean value
 bool canDoMove() {
+    // for loop to check if a move can be made
     for(int i=0; i<SIZE; i++) {
         for(int j=0; j<SIZE; j++) {
-            if(board[i][j] == 0) {
+            // if the value of the tile is 0, then a move can be made and it returns true
+            if(board[i][j].getValue() == 0) {
                 return true;
             }
-            if((i+1<SIZE && board[i][j] == board[i+1][j]) || (j+1<SIZE && board[i][j] == board[i][j+1])) {
+            // if the value of the tile is the same as the value of the tile to the right, left, above, or below it, then a move can be made and it returns true
+            if((i+1<SIZE && board[i][j].getValue() == board[i+1][j].getValue()) || (j+1<SIZE && board[i][j].getValue() == board[i][j+1].getValue())) {
                 return true;
             }
         }
     }
+    // if no move can be made then it returns false
     return false;
 }
 
-void slideLine(int array[SIZE]) {
+// function to slide the line of tiles and returns void because it does not return anything
+void slideLine(tile array[SIZE]) {
+    // inits integers x and y
     int x, y;
+    // for loop to slide the line of tiles
     for (x = 0, y = 0; y < SIZE; y++) {
-        if (array[y] != 0) {
+        // if the value of the tile is not 0, then it slides the tile to the left
+        if (array[y].getValue() != 0) {
+            // if x is less than y, then it sets the value of the tile at x to the value of the tile at y and sets the value of the tile at y to 0
             if (x < y) {
-                array[x] = array[y];
-                array[y] = 0;
+                array[x].setValue(array[y].getValue());
+                array[y].setValue(0);
             }
+            // iterates x
             x++;
         }
     }
 }
 
-void mergeLine(int array[SIZE]) {
+// this function contains the logic to merge the line of tiles and returns void because it does not return anything
+void mergeLine(tile array[SIZE]) {
+    // for loop to merge the line of tiles
     for (int x = 0; x < SIZE - 1; x++) {
-        if (array[x] == array[x + 1] && array[x] != 0) {
-            array[x] *= 2;
-            array[x + 1] = 0;
-            score += array[x]; // update score
+        // if the value of the tile at x is the same as the value of the tile at x+1 and the value of the tile at x is not 0, then it merges the tiles
+        if (array[x].getValue() == array[x + 1].getValue() && array[x].getValue() != 0) {
+            // sets the value of the tile at x to the value of the tile at x times 2 and sets the value of the tile at x+1 to 0
+            array[x].setValue(array[x].getValue() * 2);
+            array[x + 1].setValue(0);
+            // updates the score
+            score += array[x].getValue();
         }
     }
 }
 
+// getter for the score
 int getScore() {
     return score;
 }
 
+// function to apply the move to the board and returns void because it does not return anything
+// Type type type ... copy paste ... I'm so tired ... and I'm going crazy ... I should go to bed
 void applyMove(int direction) {
-    int temp[SIZE];
+    // creates a temporary array of tiles to store the board
+    tile temp[SIZE];
+    // for loop to apply the move to the board
     for (int i = 0; i < SIZE; i++) {
         // Copy the original line
+        // for loop to copy the original line to the temporary array
         for (int j = 0; j < SIZE; j++) {
+            // switch statement to copy the original line to the temporary array based on the direction
             switch (direction) {
                 case 0: temp[j] = board[j][i]; break; // Up
                 case 1: temp[j] = board[i][SIZE - j - 1]; break; // Right
@@ -366,11 +507,13 @@ void applyMove(int direction) {
                 case 3: temp[j] = board[i][j]; break; // Left
             }
         }
+        // Slide the line
         slideLine(temp);
         mergeLine(temp);
         slideLine(temp);
         // Copy the result back
         for (int j = 0; j < SIZE; j++) {
+            // switch statement to copy the result back to the board based on the direction
             switch (direction) {
                 case 0: board[j][i] = temp[j]; break; // Up
                 case 1: board[i][SIZE - j - 1] = temp[j]; break; // Right
@@ -381,26 +524,36 @@ void applyMove(int direction) {
     }
 }
 
+// function to get the max score and returns an integer value for the max score
 int getMaxScore() {
+    // inits the max score to 0
     int max = 0;
+    // for loop to get the max score
     for(int i=0; i<SIZE; i++) {
         for(int j=0; j<SIZE; j++) {
-            if(board[i][j] > max) {
-                max = board[i][j];
+            // gets the max score by comparing the value of the tiles to the max score
+            if(board[i][j].getValue() > max) {
+                max = board[i][j].getValue();
             }
         }
     }
+    // returns the max score
     return max;
 }
 
+// function to write the high score to a file and returns void because it does not return anything
 void writeHighScore(int score, string name) {
+    // uses the ofstream class to write the high score to a file named high_scores.txt
     ofstream file("high_scores.txt", ios_base::app);
+    // if the file is open, then it writes the high score to the file and formats it with the name and score separated by a :
     if (file.is_open()) {
         file << name << ": " << score << "\n";
+        // closes the file
         file.close();
     }
 }
-
+//MARK: this is where I left off of adding comments
+//TODO - Finish adding comments
 void printHighScore() {
     vector<pair<int, string > > highScores;
     ifstream inputFile("high_scores.txt");
@@ -473,7 +626,7 @@ void printHighScore() {
             case 4: // Quit
                 exit(0); // Fixes the bug where the program would not exit and would return to the game instead
             default:
-                cout << "Invalid choice. Please try again.\n";
+                cout << "\n\033[31m ! Invalid choice. Please try again. !\033[0m\n\n";
         }
     }
 }

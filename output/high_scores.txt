@@ -15,3 +15,7 @@ Luke: 2604
 ds: 1556
 ada: 2892
 "Alexander: 1736
+a: 1256
+luke: 428
+[A[D[A[D[A[D[A[D[A[D[D[A: 1128
+asddwadw: 668

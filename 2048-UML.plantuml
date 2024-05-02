@@ -1,0 +1,33 @@
+@startuml
+class InputHandler {
+    + clearScreen(): void
+    + getch(): int
+    + getCommand(): char
+}
+
+class Game {
+    - board: int[4][4]
+    - score: int
+    - inputHandler: InputHandler
+    - commandToChar[128]: char
+    + displayMenu(): void
+    + initializeGame(): void
+    + drawBoard(): void
+    + commands(char): bool
+    + addNewNumber(): void
+    + canDoMove(): bool
+    + slideLine(int[]): void
+    + mergeLine(int[]): void
+    + getScore(): int
+    + applyMove(int): void
+    + getMaxScore(): int
+    + writeHighScore(int, string): void
+    + printHighScore(): void
+    + processInput(): void
+    + helpMenu(): void
+    + runGame(): void
+    + startGame(): void
+}
+
+InputHandler --> Game
+@enduml
