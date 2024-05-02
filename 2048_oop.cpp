@@ -5,6 +5,7 @@ Final Project
 2048 Game
 Author: Luke A. Colvin
 Date: 05/03/2024
+GitHub: https://github.com/lucolvin/Final_Project_COMP-150_SP24
 */
 
 #include <iostream>
