@@ -1,5 +1,7 @@
 /*
-COMP-150 Final Project
+Class: COMP-150
+Professor: Daniel Kender
+Final Project
 2048 Game
 Author: Luke A. Colvin
 Date: 05/03/2024
@@ -731,7 +733,7 @@ void printHighScore() {
                         cout << "\033[" << colorCodes[i % 6] << "m" << message[i];
                     }
                     // resets the color to default
-                    cout << "\033[0m" << endl;
+                    cout << "\033[0m";
                     // gets the user's input
                     cin >> choice;
                     // if the user enters n, then the endGame bool is set to false which triggers the game over message
