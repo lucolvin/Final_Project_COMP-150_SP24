@@ -1,4 +1,4 @@
-# 2048 Game
+# 2048
 
 This is a simple implementation of the popular game 2048, written in C++ for the command line.
 
